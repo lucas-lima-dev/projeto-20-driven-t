@@ -29,12 +29,18 @@ export async function postCreateOrUpdateEnrollment(req: AuthenticatedRequest, re
 }
 
 export async function getAddressFromCEP(req: AuthenticatedRequest, res: Response) {
+  const cep = req.query.cep as string;
   try {
-    const address = await enrollmentsService.getAddressFromCEP();
+    const address = await enrollmentsService.getAddressFromCEP(cep);
     res.status(httpStatus.OK).send(address);
   } catch (error) {
     if (error.name === 'NotFoundError') {
       return res.send(httpStatus.NO_CONTENT);
+    }
+    if (error.name === 'InvalidFormatError') {
+      return res.status(400).send(httpStatus.NO_CONTENT);
+    } else {
+      return res.status(500).send(error);
     }
   }
 }
